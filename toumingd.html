@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .wrap-box {
+            position: absolute;
+            top: 100px;
+            right: 0;
+            width: 45px;
+            height: 150px;
+            background: #3c3c3c;
+            display: flex;
+            z-index: 1000 ;
+        }
+        .color {
+            width: 5px;
+            height: 100px;
+            border-radius: 2px;
+            background: linear-gradient(to bottom,#fff,#39E9E9);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+
+        }
+        .circle {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid black;
+        }
+        .color-box {
+            position: absolute;
+            width:100%;
+            height:100%;
+            background: red;
+           background: rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap-box">
+        <div class="color">
+            <div class="circle"></div>
+        </div>
+    </div>
+    <div class="color-box">
+        <p>456</p>
+    </div>
+</body>
+<script src="jquery-1.11.3/jquery.js"></script>
+<script>
+    $(function () {
+        $('.circle').on('mousedown',function (e) {
+            var circleHeight = $(this).height();//获取当前元素的高度
+            var minY = $(this).parent().offset().top; //这里为什么取父级元素距离文档的高度是而不是取自身距离文档的高度，因为自身的高度是会变的
+            var maxY = minY + $(this).parent().height();//获取范围最大坐标
+            var maxHeight = $(this).parent().height() - circleHeight;//获取透明条最大范围
+            $(document).on('mousemove',function (e) {
+                var cursorY = e.pageY;//获取鼠标高度
+                var circleTop = cursorY - minY;//获取自身需要变化的top值 用鼠标坐标值减去父级距离文档的高度
+                if( circleTop<= 0){
+                    circleTop = 0;
+                }
+                if( circleTop>= maxHeight){
+                    circleTop = maxHeight;
+                } //控制在透明条的范围内
+                $('.circle').css({top: circleTop});// 自身的top值随着鼠标的坐标而变化
+                var colorStr = $('.color-box').css('backgroundColor');//获取div原本设置的颜色
+                var rgb = colorStr.slice(5,-5); //获取rgba里面前三位数值
+                if(cursorY>minY&&cursorY<maxY) { //当鼠标坐标在透明条范围内 执行
+                    $('.color-box').css({backgroundColor: "rgba(" + rgb + Math.floor(circleTop) * 0.01});//控制盒子透明度
+                }
+            }).on('mouseup',function () {
+                $(document).off('mousemove');//鼠标弹起时 解除move事件
+            });
+        });
+    });
+</script>
+</html>
